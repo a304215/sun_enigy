@@ -1,0 +1,442 @@
+<html lang="zh-tw"><head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta http-equiv="cache-control" content="max-age=0">
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="expires" content="0">
+	<meta http-equiv="expires" content="Tue, 01 Jan 1990 1:00:00 GMT">
+	<meta http-equiv="pragma" content="no-cache">
+	<title>機組發電量</title>
+	<link rel="stylesheet" href="style/style.css" type="text/css">
+    <link href="css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <style>
+    @import "css/ui-lightness/jquery-ui-1.9.1.custom.css";
+	@import "css/demo_table.css";
+	@import "css/msgBoxLight.css";
+
+	body{
+	    min-width: 620px;
+	    max-width: 960px;
+	    margin: auto;
+		font-family: "Hiragino Kaku Gothic Pro","微軟正黑體","Microsoft Jhenghei",Helvetica,Arial,sans-serif;
+		font-size:15px;
+		line-height:1.2em;
+		background:#FFF;
+		text-align: left;
+	}
+	#unitgentab {
+		   -ms-user-select: none;
+		   -moz-user-select: -moz-none;
+		   -khtml-user-select: none;
+		   -webkit-user-select: none;
+		   user-select: none;
+	}
+	.expanded-group{
+		background: url("images/minus.jpg") no-repeat scroll left center transparent;
+		padding-left: 15px !important
+	}
+	.collapsed-group{
+		background: url("images/plus.jpg") no-repeat scroll left center transparent;
+		padding-left: 15px !important
+	}
+	table .rm {
+		margin: 0;
+		padding: 0;
+		line-height: 150%;
+		font-size: 15px;
+		letter-spacing: 1px;
+	}
+	.remarkw{
+		font-size: 70%;
+		display: inline;
+	}
+	.remarks{
+		margin-left: 5em;
+		text-indent: -5em;
+	}
+	.remarksa{
+		margin-left: 1.2em;
+		text-indent: -1.2em;
+	}
+/* 清單樣式 */
+
+#new-info-item .tabs { margin:0px; padding:10px 0; overflow:auto; border-bottom: dashed 1px #eaeaea; }
+#new-info-item .tabs li { float:left; margin:5px; padding:0px; list-style:none; font-size:15px; line-height:18px; background:#ebebeb; }
+#new-info-item .tabs li a { display:block; padding:5px 15px; border:solid 1px #d9d9d9; color:#666; }
+#new-info-item .tabs li a:hover { background:#ccc; color:#333; }
+#new-info-item .tabs li.cur { background:#157db3; color:#fff; }
+#new-info-item .tabs li.cur a { color:#fff; }
+#new-info-item .tabs li.cur a:hover { background:#157db3; color:#fff; }
+.pull-right { float: right; }
+.progress {margin-bottom: .5em;margin-top: .2em;}
+.alert { padding: .05rem 0.05rem; margin-bottom: 0rem;}
+.fright {float: right;}
+.barsdiv {width: 600px;}
+</style>
+
+</head>
+<body class="ex_highlight_row">
+<div id="message_bar"></div>
+<!--<img src="images/logo_black.gif" " alt="台電Logo" longdesc="http://www.taipower.com.tw"/>-->
+<!--<div  id="new-info-item">
+<ul class="tabs">
+<li><a href="../../content/new_info/new_info_in.aspx?LinkID=30" target="_top"  class="whitelink2" tabindex="4000">今日電力資訊</a></li>
+<li><a href="../../content/new_info/new_info_in.aspx?LinkID=11" target="_top" class="whitelink2" tabindex="4000">今日用電曲線(區域別)</a></li>
+<li><a href="../../content/new_info/new_info_in.aspx?LinkID=25" target="_top"  class="whitelink2" tabindex="4000">今日用電曲線(能源別)</a></li>
+<li><a href="../../content/new_info/new_info_in.aspx?LinkID=26" target="_top" class="whitelink2" tabindex="4000">今日備轉容量率</a></li>
+<li class="cur"><a href="../../content/new_info/new_info_in.aspx?LinkID=27" target="_top" class="whitelink2" tabindex="4000">各機組發電量</a></li>
+</ul>
+</div>
+<br />
+<br />
+<br />-->
+
+<!--
+	<div class="ui-state-highlight ui-corner-all" style="margin-top: 10px; padding: 0 .7em;">
+		<p align="left">
+		<strong>系統公告：<br>
+		因資訊設備異常，致 2/11 22:00 至 2/12 07:30 台中#5～台中#8 淨發電量顯示異常。</a></strong>
+	</div>
+</div>
+-->
+<div class="container-fluid">
+
+<div class="ui-widget">
+	<div class="ui-state-highlight ui-corner-all" style="margin-top: 10px; padding-left: 1.0em;padding-top: .5em;">
+		<p align="left">
+		<strong>台電系統各機組發電量（單位 MW） <br>
+		更新時間 - <a id="datetime">2021-01-12 13:10</a></strong>
+	</p></div>
+</div>
+
+     <br>
+     <div class="row">
+      <div class="col col-sm-5">
+           	<div class="alert alert-light" role="alert">
+				  各燃料別即時發電量小計(每10分鐘更新)：
+			</div>
+     </div>
+     <div class="col col-sm-4  offset-sm-3">
+           	<div class="alert alert-light fright" role="alert">
+				  總計： <span id="nestSumId" style="font-size: 1.6rem; text-align: justify; color: #666">27439</span><span class="small">&nbsp;&nbsp;MW</span>
+			</div>
+     </div>
+ 	</div>
+     <div class="row">
+      <div class="col col-sm-6">
+          <div class="span6">
+          <strong>核能(Nuclear)</strong><span id="item0" class="pull-right">3777.2 </span>
+          <div class="progress active bar-lb-0">
+              <div class="progress-bar bar-0" role="progressbar" aria-valuemin="0%" aria-valuemax="10%" style="width: 13.766%; background-color: rgb(204, 0, 153);"></div>
+          <span style="color: #4d4d4d; margin: auto 0 auto 1em; ">13.766%</span></div>
+          <strong>燃煤(Coal)</strong><span id="item1" class="pull-right">6775.6 </span>
+          <div class="progress active bar-lb-1">
+              <div class="progress-bar bar-1" style="width: 24.693%; background-color: rgb(230, 92, 0);"></div>
+          <span style="color: #4d4d4d; margin: auto 0 auto 1em; ">24.693%</span></div>
+          <strong>汽電共生(Co-Gen)</strong><span id="item2" class="pull-right">893.2 </span>
+          <div class="progress progress-striped active bar-lb-2">
+              <div class="progress-bar bar-2" style="width: 3.255%; background-color: rgb(230, 230, 0);"></div>
+          <span style="color: #4d4d4d; margin: auto 0 auto 1em; ">3.255%</span></div>
+          <strong>民營電廠-燃煤(IPP-Coal)</strong><span id="item3" class="pull-right">1747.2 </span>
+          <div class="progress progress-success active bar-lb-3">
+              <div class="progress-bar bar-3" style="width: 6.368%; background-color: rgb(255, 163, 71);"></div>
+          <span style="color: #4d4d4d; margin: auto 0 auto 1em; ">6.368%</span></div>
+          <strong>燃氣(LNG)</strong><span id="item4" class="pull-right">7776.3 </span>
+          <div class="progress progress-warning active bar-lb-4">
+              <div class="progress-bar bar-4" style="width: 28.34%; background-color: rgb(0, 102, 0);"></div>
+          <span style="color: #4d4d4d; margin: auto 0 auto 1em; ">28.340%</span></div>
+          <strong>民營電廠-燃氣(IPP-LNG)</strong><span id="item5" class="pull-right">3098.2 </span>
+          <div class="progress progress-warning active bar-lb-5">
+              <div class="progress-bar bar-5" style="width: 11.291%; background-color: rgb(94, 223, 223);"></div>
+          <span style="color: #4d4d4d; margin: auto 0 auto 1em; ">11.291%</span></div>
+          <p>
+
+          </p>
+        </div>
+          </div>
+      <div class="col col-sm-6">
+          <div class="span6">
+          <strong>燃油(Oil)</strong><span id="item6" class="pull-right">272.2 </span>
+          <div class="progress progress-danger active bar-lb-6">
+              <div class="progress-bar bar-6" style="width: 0.992%; background-color: rgb(255, 25, 25);"></div>
+          <span style="color: #4d4d4d; margin: auto 0 auto 1em; ">0.992%</span></div>
+          <strong>輕油(Diesel)</strong><span id="item7" class="pull-right">37.9 </span>
+          <div class="progress progress-info active bar-lb-7">
+              <div class="progress-bar bar-7" style="width: 0.138%; background-color: rgb(132, 132, 132);"></div>
+          <span style="color: #4d4d4d; margin: auto 0 auto 1em; ">0.138%</span></div>
+          <strong>水力(Hydro)</strong><span id="item8" class="pull-right">272.8 </span>
+          <div class="progress progress-striped active bar-lb-8">
+              <div class="progress-bar bar-8" style="width: 0.994%; background-color: rgb(0, 0, 178);"></div>
+          <span style="color: #4d4d4d; margin: auto 0 auto 1em; ">0.994%</span></div>
+          <strong>風力(Wind)</strong><span id="item9" class="pull-right">522.5 </span>
+          <div class="progress progress-success active bar-lb-9">
+              <div class="progress-bar bar-9" style="width: 1.904%; background-color: rgb(0, 153, 51);"></div>
+          <span style="color: #4d4d4d; margin: auto 0 auto 1em; ">1.904%</span></div>
+          <strong>太陽能(Solar)</strong><span id="item10" class="pull-right">2307.4 </span>
+          <div class="progress progress-warning active bar-lb-10">
+              <div class="progress-bar bar-10" style="width: 8.409%; background-color: rgb(0, 204, 0);"></div>
+          <span style="color: #4d4d4d; margin: auto 0 auto 1em; ">8.409%</span></div>
+          <strong>抽蓄發電(Pumping Gen)</strong><span id="item11" class="pull-right">194.8 </span>
+          <div class="progress progress-warning active bar-lb-11">
+              <div class="progress-bar bar-11" style="width: 0.71%; background-color: rgb(51, 102, 204);"></div>
+          <span style="color: #4d4d4d; margin: auto 0 auto 1em; ">0.710%</span></div>
+          <p>
+          </p>
+        </div>
+      </div>
+    </div>
+
+
+<br>
+<div class="row">
+	<div class="col-sm-12">
+<div id="unitgentab_wrapper" class="dataTables_wrapper" role="grid"><div class="fg-toolbar ui-toolbar ui-widget-header ui-corner-tl ui-corner-tr ui-helper-clearfix"><div class="dataTables_filter" id="unitgentab_filter"><label>搜尋 <input type="text" aria-controls="unitgentab"></label></div><div id="unitgentab_processing" class="dataTables_processing" style="visibility: hidden;">數據載入中...</div></div><table cellpadding="0" cellspacing="0" border="0" class="display dataTable" id="unitgentab">
+	<thead>
+		<tr role="row"><th class="ui-state-default" role="columnheader" rowspan="1" colspan="1" style="width: 20%;"><div class="DataTables_sort_wrapper">機組名稱<span class="DataTables_sort_icon"></span></div></th><th class="ui-state-default" role="columnheader" rowspan="1" colspan="1" style="width: 20%;"><div class="DataTables_sort_wrapper">裝置容量<span class="remarkw">(註1)</span><span class="DataTables_sort_icon"></span></div></th><th class="ui-state-default" role="columnheader" rowspan="1" colspan="1" style="width: 20%;"><div class="DataTables_sort_wrapper">淨發電量<span class="remarkw">(註2)</span><span class="DataTables_sort_icon"></span></div></th><th class="ui-state-default" role="columnheader" rowspan="1" colspan="1" style="width: 15%;"><div class="DataTables_sort_wrapper">淨發電量/裝置容量比(%)<span class="remarkw">(註3)</span><span class="DataTables_sort_icon"></span></div></th><th class="ui-state-default" role="columnheader" rowspan="1" colspan="1" style="width: 15%;"><div class="DataTables_sort_wrapper">備註<span class="remarkw">(註11)</span><span class="DataTables_sort_icon"></span></div></th></tr>
+	</thead>
+	
+<tbody role="alert" aria-live="polite" aria-relevant="all"><tr id="group-id-unitgentab_-a-name-nuclear-a-b-核能-nuclear-b-"><td class="group -a-name-nuclear-a-b-核能-nuclear-b- expanded-group group-item-expander" colspan="5" data-group="-a-name-nuclear-a-b-核能-nuclear-b-" data-group-level="0"><a name="nuclear"></a><b>核能(Nuclear)</b></td></tr><tr class="odd group-item group-item--a-name-nuclear-a-b-核能-nuclear-b-" data-group="-a-name-nuclear-a-b-核能-nuclear-b-"><td class="">核二#1</td><td class="">985.0</td><td class="">986.6</td><td class="">100.162%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-nuclear-a-b-核能-nuclear-b-" data-group="-a-name-nuclear-a-b-核能-nuclear-b-"><td class="">核二#2</td><td class="">985.0</td><td class="">892.8</td><td class="">90.640%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-nuclear-a-b-核能-nuclear-b-" data-group="-a-name-nuclear-a-b-核能-nuclear-b-"><td class="">核三#1</td><td class="">951.0</td><td class="">950.6</td><td class="">99.958%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-nuclear-a-b-核能-nuclear-b-" data-group="-a-name-nuclear-a-b-核能-nuclear-b-"><td class="">核三#2</td><td class="">951.0</td><td class="">947.2</td><td class="">99.600%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-nuclear-a-b-核能-nuclear-b-" data-group="-a-name-nuclear-a-b-核能-nuclear-b-"><td class="">小計</td><td class="">3872.0(7.903%)</td><td class="">3777.2(13.766%)</td><td class=""></td><td class=""></td></tr><tr id="group-id-unitgentab_-a-name-coal-a-b-燃煤-coal-b-"><td class="group -a-name-coal-a-b-燃煤-coal-b- expanded-group group-item-expander" colspan="5" data-group="-a-name-coal-a-b-燃煤-coal-b-" data-group-level="0"><a name="coal"></a><b>燃煤(Coal)</b></td></tr><tr class="even group-item group-item--a-name-coal-a-b-燃煤-coal-b-" data-group="-a-name-coal-a-b-燃煤-coal-b-"><td class="">林口#1</td><td class="">800.0</td><td class="">760.0</td><td class="">95.000%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-coal-a-b-燃煤-coal-b-" data-group="-a-name-coal-a-b-燃煤-coal-b-"><td class="">林口#2</td><td class="">800.0</td><td class="">0.0</td><td class="">0.000%</td><td class="">歲修</td></tr><tr class="even group-item group-item--a-name-coal-a-b-燃煤-coal-b-" data-group="-a-name-coal-a-b-燃煤-coal-b-"><td class="">林口#3</td><td class="">800.0</td><td class="">762.2</td><td class="">95.275%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-coal-a-b-燃煤-coal-b-" data-group="-a-name-coal-a-b-燃煤-coal-b-"><td class="">台中#1</td><td class="">550.0</td><td class="">455.0</td><td class="">82.727%</td><td class="">友善降載減排</td></tr><tr class="even group-item group-item--a-name-coal-a-b-燃煤-coal-b-" data-group="-a-name-coal-a-b-燃煤-coal-b-"><td class="">台中#2</td><td class="">550.0</td><td class="">466.9</td><td class="">84.891%</td><td class="">友善降載減排</td></tr><tr class="odd group-item group-item--a-name-coal-a-b-燃煤-coal-b-" data-group="-a-name-coal-a-b-燃煤-coal-b-"><td class="">台中#3</td><td class="">550.0</td><td class="">0.0</td><td class="">0.000%</td><td class="">環保停機</td></tr><tr class="even group-item group-item--a-name-coal-a-b-燃煤-coal-b-" data-group="-a-name-coal-a-b-燃煤-coal-b-"><td class="">台中#4</td><td class="">550.0</td><td class="">477.6</td><td class="">86.836%</td><td class="">友善降載減排</td></tr><tr class="odd group-item group-item--a-name-coal-a-b-燃煤-coal-b-" data-group="-a-name-coal-a-b-燃煤-coal-b-"><td class="">台中#5</td><td class="">550.0</td><td class="">0.0</td><td class="">0.000%</td><td class="">環保停機檢修</td></tr><tr class="even group-item group-item--a-name-coal-a-b-燃煤-coal-b-" data-group="-a-name-coal-a-b-燃煤-coal-b-"><td class="">台中#6</td><td class="">550.0</td><td class="">430.3</td><td class="">78.236%</td><td class="">友善降載減排</td></tr><tr class="odd group-item group-item--a-name-coal-a-b-燃煤-coal-b-" data-group="-a-name-coal-a-b-燃煤-coal-b-"><td class="">台中#7</td><td class="">550.0</td><td class="">446.9</td><td class="">81.255%</td><td class="">友善降載減排</td></tr><tr class="even group-item group-item--a-name-coal-a-b-燃煤-coal-b-" data-group="-a-name-coal-a-b-燃煤-coal-b-"><td class="">台中#8</td><td class="">550.0</td><td class="">484.7</td><td class="">88.127%</td><td class="">友善降載減排</td></tr><tr class="odd group-item group-item--a-name-coal-a-b-燃煤-coal-b-" data-group="-a-name-coal-a-b-燃煤-coal-b-"><td class="">台中#9</td><td class="">550.0</td><td class="">474.6</td><td class="">86.291%</td><td class="">友善降載減排</td></tr><tr class="even group-item group-item--a-name-coal-a-b-燃煤-coal-b-" data-group="-a-name-coal-a-b-燃煤-coal-b-"><td class="">台中#10</td><td class="">550.0</td><td class="">0.0</td><td class="">0.000%</td><td class="">環保停機歲修</td></tr><tr class="odd group-item group-item--a-name-coal-a-b-燃煤-coal-b-" data-group="-a-name-coal-a-b-燃煤-coal-b-"><td class="">興達#1(註12)</td><td class="">500.0</td><td class="">240.3</td><td class="">48.060%</td><td class="">友善降載減排</td></tr><tr class="even group-item group-item--a-name-coal-a-b-燃煤-coal-b-" data-group="-a-name-coal-a-b-燃煤-coal-b-"><td class="">興達#2(註12)</td><td class="">500.0</td><td class="">0.0</td><td class="">0.000%</td><td class="">環保停機</td></tr><tr class="odd group-item group-item--a-name-coal-a-b-燃煤-coal-b-" data-group="-a-name-coal-a-b-燃煤-coal-b-"><td class="">興達#3(註12)</td><td class="">550.0</td><td class="">250.4</td><td class="">45.527%</td><td class="">友善降載減排</td></tr><tr class="even group-item group-item--a-name-coal-a-b-燃煤-coal-b-" data-group="-a-name-coal-a-b-燃煤-coal-b-"><td class="">興達#4(註12)</td><td class="">550.0</td><td class="">0.0</td><td class="">0.000%</td><td class="">環保停機歲修</td></tr><tr class="odd group-item group-item--a-name-coal-a-b-燃煤-coal-b-" data-group="-a-name-coal-a-b-燃煤-coal-b-"><td class="">大林#1</td><td class="">800.0</td><td class="">762.5</td><td class="">95.312%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-coal-a-b-燃煤-coal-b-" data-group="-a-name-coal-a-b-燃煤-coal-b-"><td class="">大林#2</td><td class="">800.0</td><td class="">764.2</td><td class="">95.525%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-coal-a-b-燃煤-coal-b-" data-group="-a-name-coal-a-b-燃煤-coal-b-"><td class="">小計</td><td class="">11600.0(23.676%)</td><td class="">6775.6(24.693%)</td><td class=""></td><td class=""></td></tr><tr id="group-id-unitgentab_-a-name-cogen-a-b-汽電共生-co-gen-b-"><td class="group -a-name-cogen-a-b-汽電共生-co-gen-b- expanded-group group-item-expander" colspan="5" data-group="-a-name-cogen-a-b-汽電共生-co-gen-b-" data-group-level="0"><a name="cogen"></a><b>汽電共生(Co-Gen)</b></td></tr><tr class="even group-item group-item--a-name-cogen-a-b-汽電共生-co-gen-b-" data-group="-a-name-cogen-a-b-汽電共生-co-gen-b-"><td class="">汽電共生</td><td class="">618.0</td><td class="">893.2</td><td class="">-</td><td class="">部分歲修</td></tr><tr class="odd group-item group-item--a-name-cogen-a-b-汽電共生-co-gen-b-" data-group="-a-name-cogen-a-b-汽電共生-co-gen-b-"><td class="">小計</td><td class="">618.0(1.261%)</td><td class="">893.2(3.255%)</td><td class=""></td><td class=""></td></tr><tr id="group-id-unitgentab_-a-name-ippcoal-a-b-民營電廠-燃煤-ipp-coal-b-"><td class="group -a-name-ippcoal-a-b-民營電廠-燃煤-ipp-coal-b- expanded-group group-item-expander" colspan="5" data-group="-a-name-ippcoal-a-b-民營電廠-燃煤-ipp-coal-b-" data-group-level="0"><a name="ippcoal"></a><b>民營電廠-燃煤(IPP-Coal)</b></td></tr><tr class="even group-item group-item--a-name-ippcoal-a-b-民營電廠-燃煤-ipp-coal-b-" data-group="-a-name-ippcoal-a-b-民營電廠-燃煤-ipp-coal-b-"><td class="">和平#1</td><td class="">648.6</td><td class="">0.0</td><td class="">0.000%</td><td class="">歲修</td></tr><tr class="odd group-item group-item--a-name-ippcoal-a-b-民營電廠-燃煤-ipp-coal-b-" data-group="-a-name-ippcoal-a-b-民營電廠-燃煤-ipp-coal-b-"><td class="">和平#2</td><td class="">648.6</td><td class="">600.4</td><td class="">92.576%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-ippcoal-a-b-民營電廠-燃煤-ipp-coal-b-" data-group="-a-name-ippcoal-a-b-民營電廠-燃煤-ipp-coal-b-"><td class="">麥寮#1</td><td class="">600.0</td><td class="">0.0</td><td class="">0.000%</td><td class="">歲修</td></tr><tr class="odd group-item group-item--a-name-ippcoal-a-b-民營電廠-燃煤-ipp-coal-b-" data-group="-a-name-ippcoal-a-b-民營電廠-燃煤-ipp-coal-b-"><td class="">麥寮#2</td><td class="">600.0</td><td class="">571.5</td><td class="">95.250%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-ippcoal-a-b-民營電廠-燃煤-ipp-coal-b-" data-group="-a-name-ippcoal-a-b-民營電廠-燃煤-ipp-coal-b-"><td class="">麥寮#3</td><td class="">600.0</td><td class="">575.3</td><td class="">95.883%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-ippcoal-a-b-民營電廠-燃煤-ipp-coal-b-" data-group="-a-name-ippcoal-a-b-民營電廠-燃煤-ipp-coal-b-"><td class="">小計</td><td class="">3097.1(6.321%)</td><td class="">1747.2(6.368%)</td><td class=""></td><td class=""></td></tr><tr id="group-id-unitgentab_-a-name-lng-a-b-燃氣-lng-b-"><td class="group -a-name-lng-a-b-燃氣-lng-b- expanded-group group-item-expander" colspan="5" data-group="-a-name-lng-a-b-燃氣-lng-b-" data-group-level="0"><a name="lng"></a><b>燃氣(LNG)</b></td></tr><tr class="even group-item group-item--a-name-lng-a-b-燃氣-lng-b-" data-group="-a-name-lng-a-b-燃氣-lng-b-"><td class="">大潭CC#1</td><td class="">742.7</td><td class="">625.2</td><td class="">84.179%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-lng-a-b-燃氣-lng-b-" data-group="-a-name-lng-a-b-燃氣-lng-b-"><td class="">大潭CC#2</td><td class="">742.7</td><td class="">680.8</td><td class="">91.666%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-lng-a-b-燃氣-lng-b-" data-group="-a-name-lng-a-b-燃氣-lng-b-"><td class="">大潭CC#3</td><td class="">724.7</td><td class="">0.0</td><td class="">0.000%</td><td class="">歲修</td></tr><tr class="odd group-item group-item--a-name-lng-a-b-燃氣-lng-b-" data-group="-a-name-lng-a-b-燃氣-lng-b-"><td class="">大潭CC#4</td><td class="">724.7</td><td class="">608.1</td><td class="">83.911%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-lng-a-b-燃氣-lng-b-" data-group="-a-name-lng-a-b-燃氣-lng-b-"><td class="">大潭CC#5</td><td class="">724.7</td><td class="">413.0</td><td class="">56.989%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-lng-a-b-燃氣-lng-b-" data-group="-a-name-lng-a-b-燃氣-lng-b-"><td class="">大潭CC#6</td><td class="">724.7</td><td class="">497.8</td><td class="">68.690%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-lng-a-b-燃氣-lng-b-" data-group="-a-name-lng-a-b-燃氣-lng-b-"><td class="">大潭CC#7</td><td class="">600.0</td><td class="">0.0</td><td class="">0.000%</td><td class="">部分檢修</td></tr><tr class="odd group-item group-item--a-name-lng-a-b-燃氣-lng-b-" data-group="-a-name-lng-a-b-燃氣-lng-b-"><td class="">通霄CC#1</td><td class="">892.6</td><td class="">382.9</td><td class="">42.897%</td><td class="">部分歲修</td></tr><tr class="even group-item group-item--a-name-lng-a-b-燃氣-lng-b-" data-group="-a-name-lng-a-b-燃氣-lng-b-"><td class="">通霄CC#2</td><td class="">892.6</td><td class="">668.2</td><td class="">74.860%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-lng-a-b-燃氣-lng-b-" data-group="-a-name-lng-a-b-燃氣-lng-b-"><td class="">通霄CC#3</td><td class="">892.6</td><td class="">752.7</td><td class="">84.327%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-lng-a-b-燃氣-lng-b-" data-group="-a-name-lng-a-b-燃氣-lng-b-"><td class="">通霄CC#4</td><td class="">386.0</td><td class="">327.8</td><td class="">84.922%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-lng-a-b-燃氣-lng-b-" data-group="-a-name-lng-a-b-燃氣-lng-b-"><td class="">通霄CC#5</td><td class="">386.0</td><td class="">220.1</td><td class="">57.021%</td><td class="">部分檢修</td></tr><tr class="even group-item group-item--a-name-lng-a-b-燃氣-lng-b-" data-group="-a-name-lng-a-b-燃氣-lng-b-"><td class="">通霄CC#6</td><td class="">321.2</td><td class="">305.6</td><td class="">95.143%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-lng-a-b-燃氣-lng-b-" data-group="-a-name-lng-a-b-燃氣-lng-b-"><td class="">興達CC#1</td><td class="">445.2</td><td class="">0.0</td><td class="">0.000%</td><td class="">歲修</td></tr><tr class="even group-item group-item--a-name-lng-a-b-燃氣-lng-b-" data-group="-a-name-lng-a-b-燃氣-lng-b-"><td class="">興達CC#2</td><td class="">445.2</td><td class="">399.2</td><td class="">89.670%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-lng-a-b-燃氣-lng-b-" data-group="-a-name-lng-a-b-燃氣-lng-b-"><td class="">興達CC#3</td><td class="">445.2</td><td class="">226.0</td><td class="">50.765%</td><td class="">部分檢修</td></tr><tr class="even group-item group-item--a-name-lng-a-b-燃氣-lng-b-" data-group="-a-name-lng-a-b-燃氣-lng-b-"><td class="">興達CC#4</td><td class="">445.2</td><td class="">328.1</td><td class="">73.699%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-lng-a-b-燃氣-lng-b-" data-group="-a-name-lng-a-b-燃氣-lng-b-"><td class="">興達CC#5</td><td class="">445.2</td><td class="">329.3</td><td class="">73.968%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-lng-a-b-燃氣-lng-b-" data-group="-a-name-lng-a-b-燃氣-lng-b-"><td class="">南部CC#1</td><td class="">288.8</td><td class="">227.4</td><td class="">78.740%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-lng-a-b-燃氣-lng-b-" data-group="-a-name-lng-a-b-燃氣-lng-b-"><td class="">南部CC#2</td><td class="">288.8</td><td class="">229.8</td><td class="">79.571%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-lng-a-b-燃氣-lng-b-" data-group="-a-name-lng-a-b-燃氣-lng-b-"><td class="">南部CC#3</td><td class="">288.8</td><td class="">0.0</td><td class="">0.000%</td><td class="">檢修</td></tr><tr class="odd group-item group-item--a-name-lng-a-b-燃氣-lng-b-" data-group="-a-name-lng-a-b-燃氣-lng-b-"><td class="">南部CC#4</td><td class="">251.4</td><td class="">197.2</td><td class="">78.441%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-lng-a-b-燃氣-lng-b-" data-group="-a-name-lng-a-b-燃氣-lng-b-"><td class="">大林#5</td><td class="">500.0</td><td class="">137.7</td><td class="">27.540%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-lng-a-b-燃氣-lng-b-" data-group="-a-name-lng-a-b-燃氣-lng-b-"><td class="">大林#6</td><td class="">550.0</td><td class="">219.4</td><td class="">39.891%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-lng-a-b-燃氣-lng-b-" data-group="-a-name-lng-a-b-燃氣-lng-b-"><td class="">小計</td><td class="">13149.0(26.837%)</td><td class="">7776.3(28.340%)</td><td class=""></td><td class=""></td></tr><tr id="group-id-unitgentab_-a-name-ipplng-a-b-民營電廠-燃氣-ipp-lng-b-"><td class="group -a-name-ipplng-a-b-民營電廠-燃氣-ipp-lng-b- expanded-group group-item-expander" colspan="5" data-group="-a-name-ipplng-a-b-民營電廠-燃氣-ipp-lng-b-" data-group-level="0"><a name="ipplng"></a><b>民營電廠-燃氣(IPP-LNG)</b></td></tr><tr class="odd group-item group-item--a-name-ipplng-a-b-民營電廠-燃氣-ipp-lng-b-" data-group="-a-name-ipplng-a-b-民營電廠-燃氣-ipp-lng-b-"><td class="">海湖#1</td><td class="">450.0</td><td class="">446.8</td><td class="">99.289%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-ipplng-a-b-民營電廠-燃氣-ipp-lng-b-" data-group="-a-name-ipplng-a-b-民營電廠-燃氣-ipp-lng-b-"><td class="">海湖#2</td><td class="">450.0</td><td class="">448.5</td><td class="">99.667%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-ipplng-a-b-民營電廠-燃氣-ipp-lng-b-" data-group="-a-name-ipplng-a-b-民營電廠-燃氣-ipp-lng-b-"><td class="">新桃#1</td><td class="">600.0</td><td class="">420.2</td><td class="">70.033%</td><td class="">部分歲修</td></tr><tr class="even group-item group-item--a-name-ipplng-a-b-民營電廠-燃氣-ipp-lng-b-" data-group="-a-name-ipplng-a-b-民營電廠-燃氣-ipp-lng-b-"><td class="">國光#1</td><td class="">480.0</td><td class="">392.4</td><td class="">81.750%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-ipplng-a-b-民營電廠-燃氣-ipp-lng-b-" data-group="-a-name-ipplng-a-b-民營電廠-燃氣-ipp-lng-b-"><td class="">星彰#1</td><td class="">506.9</td><td class="">0.0</td><td class="">0.000%</td><td class="">合約限制</td></tr><tr class="even group-item group-item--a-name-ipplng-a-b-民營電廠-燃氣-ipp-lng-b-" data-group="-a-name-ipplng-a-b-民營電廠-燃氣-ipp-lng-b-"><td class="">星元#1</td><td class="">490.0</td><td class="">277.6</td><td class="">56.653%</td><td class="">部分故障</td></tr><tr class="odd group-item group-item--a-name-ipplng-a-b-民營電廠-燃氣-ipp-lng-b-" data-group="-a-name-ipplng-a-b-民營電廠-燃氣-ipp-lng-b-"><td class="">嘉惠#1</td><td class="">670.0</td><td class="">664.8</td><td class="">99.224%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-ipplng-a-b-民營電廠-燃氣-ipp-lng-b-" data-group="-a-name-ipplng-a-b-民營電廠-燃氣-ipp-lng-b-"><td class="">豐德#1</td><td class="">506.9</td><td class="">447.9</td><td class="">88.368%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-ipplng-a-b-民營電廠-燃氣-ipp-lng-b-" data-group="-a-name-ipplng-a-b-民營電廠-燃氣-ipp-lng-b-"><td class="">豐德#2</td><td class="">506.9</td><td class="">0.0</td><td class="">0.000%</td><td class="">合約限制</td></tr><tr class="even group-item group-item--a-name-ipplng-a-b-民營電廠-燃氣-ipp-lng-b-" data-group="-a-name-ipplng-a-b-民營電廠-燃氣-ipp-lng-b-"><td class="">小計</td><td class="">4660.6(9.512%)</td><td class="">3098.2(11.291%)</td><td class=""></td><td class=""></td></tr><tr id="group-id-unitgentab_-a-name-oil-a-b-燃油-oil-b-"><td class="group -a-name-oil-a-b-燃油-oil-b- expanded-group group-item-expander" colspan="5" data-group="-a-name-oil-a-b-燃油-oil-b-" data-group-level="0"><a name="oil"></a><b>燃油(Oil)</b></td></tr><tr class="odd group-item group-item--a-name-oil-a-b-燃油-oil-b-" data-group="-a-name-oil-a-b-燃油-oil-b-"><td class="">協和#3</td><td class="">500.0</td><td class="">137.3</td><td class="">27.460%</td><td class="">友善降載減排</td></tr><tr class="even group-item group-item--a-name-oil-a-b-燃油-oil-b-" data-group="-a-name-oil-a-b-燃油-oil-b-"><td class="">協和#4</td><td class="">500.0</td><td class="">134.9</td><td class="">26.988%</td><td class="">友善降載減排</td></tr><tr class="odd group-item group-item--a-name-oil-a-b-燃油-oil-b-" data-group="-a-name-oil-a-b-燃油-oil-b-"><td class="">小計</td><td class="">1000.0(2.041%)</td><td class="">272.2(0.992%)</td><td class=""></td><td class=""></td></tr><tr id="group-id-unitgentab_-a-name-diesel-a-b-輕油-diesel-b-"><td class="group -a-name-diesel-a-b-輕油-diesel-b- expanded-group group-item-expander" colspan="5" data-group="-a-name-diesel-a-b-輕油-diesel-b-" data-group-level="0"><a name="diesel"></a><b>輕油(Diesel)</b></td></tr><tr class="even group-item group-item--a-name-diesel-a-b-輕油-diesel-b-" data-group="-a-name-diesel-a-b-輕油-diesel-b-"><td class="">核二Gas1</td><td class="">-</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-diesel-a-b-輕油-diesel-b-" data-group="-a-name-diesel-a-b-輕油-diesel-b-"><td class="">核二Gas2</td><td class="">-</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-diesel-a-b-輕油-diesel-b-" data-group="-a-name-diesel-a-b-輕油-diesel-b-"><td class="">核三Gas1</td><td class="">-</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-diesel-a-b-輕油-diesel-b-" data-group="-a-name-diesel-a-b-輕油-diesel-b-"><td class="">核三Gas2</td><td class="">-</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-diesel-a-b-輕油-diesel-b-" data-group="-a-name-diesel-a-b-輕油-diesel-b-"><td class="">台中Gas1&amp;2</td><td class="">140.0</td><td class="">0.0</td><td class="">0.000%</td><td class="">部分檢修</td></tr><tr class="odd group-item group-item--a-name-diesel-a-b-輕油-diesel-b-" data-group="-a-name-diesel-a-b-輕油-diesel-b-"><td class="">台中Gas3&amp;4</td><td class="">140.0</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-diesel-a-b-輕油-diesel-b-" data-group="-a-name-diesel-a-b-輕油-diesel-b-"><td class="">澎湖尖山(註4)</td><td class="">129.8</td><td class="">30.9</td><td class="">23.806%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-diesel-a-b-輕油-diesel-b-" data-group="-a-name-diesel-a-b-輕油-diesel-b-"><td class="">金門塔山(註4)</td><td class="">113.3</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-diesel-a-b-輕油-diesel-b-" data-group="-a-name-diesel-a-b-輕油-diesel-b-"><td class="">馬祖珠山(註4)</td><td class="">28.6</td><td class="">7.0</td><td class="">24.441%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-diesel-a-b-輕油-diesel-b-" data-group="-a-name-diesel-a-b-輕油-diesel-b-"><td class="">離島其他(註4)</td><td class="">42.7</td><td class="">N/A</td><td class="">N/A</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-diesel-a-b-輕油-diesel-b-" data-group="-a-name-diesel-a-b-輕油-diesel-b-"><td class="">小計(註5)</td><td class="">594.4(1.213%)</td><td class="">37.9(0.138%)</td><td class=""></td><td class=""></td></tr><tr id="group-id-unitgentab_-a-name-hydro-a-b-水力-hydro-b-"><td class="group -a-name-hydro-a-b-水力-hydro-b- expanded-group group-item-expander" colspan="5" data-group="-a-name-hydro-a-b-水力-hydro-b-" data-group-level="0"><a name="hydro"></a><b>水力(Hydro)</b></td></tr><tr class="odd group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">德基#1</td><td class="">78.0</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">德基#2</td><td class="">78.0</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">德基#3</td><td class="">78.0</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">青山#1</td><td class="">92.0</td><td class="">10.9</td><td class="">11.848%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">青山#2</td><td class="">92.0</td><td class="">7.1</td><td class="">7.717%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">青山#3</td><td class="">92.0</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">青山#4</td><td class="">92.0</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">谷關#1</td><td class="">54.4</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">谷關#2</td><td class="">54.4</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">谷關#3</td><td class="">54.4</td><td class="">22.8</td><td class="">41.873%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">谷關#4</td><td class="">54.4</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">天輪#1</td><td class="">22.5</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">天輪#2</td><td class="">22.5</td><td class="">9.0</td><td class="">40.000%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">天輪#3</td><td class="">22.5</td><td class="">15.3</td><td class="">68.000%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">天輪#4</td><td class="">22.5</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">天輪#5</td><td class="">105.0</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">馬鞍#1</td><td class="">66.7</td><td class="">0.0</td><td class="">0.000%</td><td class="">歲修</td></tr><tr class="even group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">馬鞍#2</td><td class="">66.7</td><td class="">0.0</td><td class="">0.000%</td><td class="">檢修</td></tr><tr class="odd group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">卓蘭#1</td><td class="">40.0</td><td class="">0.0</td><td class="">0.000%</td><td class="">檢修</td></tr><tr class="even group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">卓蘭#2</td><td class="">40.0</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">萬大#1</td><td class="">10.4</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">萬大#2</td><td class="">10.4</td><td class="">5.0</td><td class="">48.309%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">萬大#3</td><td class="">15.3</td><td class="">0.0</td><td class="">0.000%</td><td class="">檢修</td></tr><tr class="even group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">萬大#4</td><td class="">19.7</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">松林#1&amp;2</td><td class="">20.9</td><td class="">2.9</td><td class="">13.876%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">大觀一#1</td><td class="">22.0</td><td class="">8.4</td><td class="">38.182%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">大觀一#2</td><td class="">22.0</td><td class="">7.5</td><td class="">34.091%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">大觀一#3</td><td class="">22.0</td><td class="">10.6</td><td class="">48.182%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">大觀一#4</td><td class="">22.0</td><td class="">10.2</td><td class="">46.364%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">大觀一#5</td><td class="">22.0</td><td class="">0.0</td><td class="">0.000%</td><td class="">歲修</td></tr><tr class="odd group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">鉅工#1</td><td class="">21.8</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">鉅工#2</td><td class="">21.8</td><td class="">1.7</td><td class="">7.816%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">水里#1</td><td class="">12.8</td><td class="">0.0</td><td class="">0.002%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">立霧#1&amp;#2</td><td class="">32.0</td><td class="">15.0</td><td class="">46.875%</td><td class="">部分檢修</td></tr><tr class="odd group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">龍澗#1</td><td class="">48.6</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">龍澗#2</td><td class="">48.6</td><td class="">15.6</td><td class="">32.099%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">碧海</td><td class="">61.2</td><td class="">7.1</td><td class="">11.601%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">烏來&amp;桂山&amp;粗坑</td><td class="">40.5</td><td class="">36.6</td><td class="">90.370%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">北部小水力(註6)</td><td class="">26.6</td><td class="">N/A</td><td class="">N/A</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">中部小水力(註6)</td><td class="">9.8</td><td class="">N/A</td><td class="">N/A</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">南部小水力(註6)</td><td class="">7.2</td><td class="">N/A</td><td class="">N/A</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">東部小水力(註6)</td><td class="">54.6</td><td class="">28.0</td><td class="">51.282%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">翡翠#1</td><td class="">70.0</td><td class="">13.6</td><td class="">19.429%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">石門#1</td><td class="">45.0</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">石門#2</td><td class="">45.0</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">曾文#1</td><td class="">50.0</td><td class="">0.0</td><td class="">0.000%</td><td class="">歲修</td></tr><tr class="odd group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">義興#1</td><td class="">40.0</td><td class="">24.6</td><td class="">61.500%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">名間</td><td class="">16.7</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">嘉南西口、烏山頭和八田</td><td class="">22.5</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">后里示範</td><td class="">0.1</td><td class="">N/A</td><td class="">N/A</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">卑南</td><td class="">2.0</td><td class="">0.9</td><td class="">45.455%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">捷祥關山</td><td class="">1.0</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-hydro-a-b-水力-hydro-b-" data-group="-a-name-hydro-a-b-水力-hydro-b-"><td class="">小計</td><td class="">2092.5(4.271%)</td><td class="">272.8(0.994%)</td><td class=""></td><td class=""></td></tr><tr id="group-id-unitgentab_-a-name-wind-a-b-風力-wind-b-"><td class="group -a-name-wind-a-b-風力-wind-b- expanded-group group-item-expander" colspan="5" data-group="-a-name-wind-a-b-風力-wind-b-" data-group-level="0"><a name="wind"></a><b>風力(Wind)</b></td></tr><tr class="even group-item group-item--a-name-wind-a-b-風力-wind-b-" data-group="-a-name-wind-a-b-風力-wind-b-"><td class="">石門</td><td class="">4.0</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-wind-a-b-風力-wind-b-" data-group="-a-name-wind-a-b-風力-wind-b-"><td class="">林口</td><td class="">6.0</td><td class="">0.7</td><td class="">11.667%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-wind-a-b-風力-wind-b-" data-group="-a-name-wind-a-b-風力-wind-b-"><td class="">蘆竹</td><td class="">7.2</td><td class="">0.7</td><td class="">9.722%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-wind-a-b-風力-wind-b-" data-group="-a-name-wind-a-b-風力-wind-b-"><td class="">大潭</td><td class="">15.1</td><td class="">2.3</td><td class="">15.232%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-wind-a-b-風力-wind-b-" data-group="-a-name-wind-a-b-風力-wind-b-"><td class="">觀園</td><td class="">30.0</td><td class="">14.7</td><td class="">49.093%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-wind-a-b-風力-wind-b-" data-group="-a-name-wind-a-b-風力-wind-b-"><td class="">香山</td><td class="">12.0</td><td class="">4.4</td><td class="">36.667%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-wind-a-b-風力-wind-b-" data-group="-a-name-wind-a-b-風力-wind-b-"><td class="">台中</td><td class="">6.0</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-wind-a-b-風力-wind-b-" data-group="-a-name-wind-a-b-風力-wind-b-"><td class="">台中港</td><td class="">36.0</td><td class="">24.8</td><td class="">68.889%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-wind-a-b-風力-wind-b-" data-group="-a-name-wind-a-b-風力-wind-b-"><td class="">王功</td><td class="">23.0</td><td class="">20.9</td><td class="">90.870%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-wind-a-b-風力-wind-b-" data-group="-a-name-wind-a-b-風力-wind-b-"><td class="">彰工</td><td class="">71.2</td><td class="">63.1</td><td class="">88.624%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-wind-a-b-風力-wind-b-" data-group="-a-name-wind-a-b-風力-wind-b-"><td class="">永興</td><td class="">9.2</td><td class="">9.4</td><td class="">102.174%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-wind-a-b-風力-wind-b-" data-group="-a-name-wind-a-b-風力-wind-b-"><td class="">離岸一期(註10)</td><td class="">-</td><td class="">5.0</td><td class="">4.615%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-wind-a-b-風力-wind-b-" data-group="-a-name-wind-a-b-風力-wind-b-"><td class="">雲麥</td><td class="">46.0</td><td class="">32.8</td><td class="">71.304%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-wind-a-b-風力-wind-b-" data-group="-a-name-wind-a-b-風力-wind-b-"><td class="">四湖</td><td class="">28.0</td><td class="">23.7</td><td class="">84.546%</td><td class="">通訊中斷</td></tr><tr class="even group-item group-item--a-name-wind-a-b-風力-wind-b-" data-group="-a-name-wind-a-b-風力-wind-b-"><td class="">恆春</td><td class="">4.5</td><td class="">1.8</td><td class="">40.000%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-wind-a-b-風力-wind-b-" data-group="-a-name-wind-a-b-風力-wind-b-"><td class="">澎湖中屯</td><td class="">4.8</td><td class="">0.2</td><td class="">4.771%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-wind-a-b-風力-wind-b-" data-group="-a-name-wind-a-b-風力-wind-b-"><td class="">金門金沙</td><td class="">4.0</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-wind-a-b-風力-wind-b-" data-group="-a-name-wind-a-b-風力-wind-b-"><td class="">澎湖湖西</td><td class="">5.4</td><td class="">0.1</td><td class="">0.926%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-wind-a-b-風力-wind-b-" data-group="-a-name-wind-a-b-風力-wind-b-"><td class="">苗栗竹南</td><td class="">7.8</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-wind-a-b-風力-wind-b-" data-group="-a-name-wind-a-b-風力-wind-b-"><td class="">苗栗大鵬</td><td class="">42.0</td><td class="">20.8</td><td class="">49.524%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-wind-a-b-風力-wind-b-" data-group="-a-name-wind-a-b-風力-wind-b-"><td class="">鹿威彰濱</td><td class="">55.2</td><td class="">42.6</td><td class="">77.174%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-wind-a-b-風力-wind-b-" data-group="-a-name-wind-a-b-風力-wind-b-"><td class="">鹿威鹿港</td><td class="">41.4</td><td class="">27.7</td><td class="">66.908%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-wind-a-b-風力-wind-b-" data-group="-a-name-wind-a-b-風力-wind-b-"><td class="">觀威觀音&amp;桃威新屋</td><td class="">48.3</td><td class="">2.4</td><td class="">4.969%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-wind-a-b-風力-wind-b-" data-group="-a-name-wind-a-b-風力-wind-b-"><td class="">中威大安</td><td class="">75.9</td><td class="">74.7</td><td class="">98.419%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-wind-a-b-風力-wind-b-" data-group="-a-name-wind-a-b-風力-wind-b-"><td class="">崎威崎頂</td><td class="">6.9</td><td class="">0.0</td><td class="">0.541%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-wind-a-b-風力-wind-b-" data-group="-a-name-wind-a-b-風力-wind-b-"><td class="">豐威</td><td class="">11.5</td><td class="">3.3</td><td class="">28.696%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-wind-a-b-風力-wind-b-" data-group="-a-name-wind-a-b-風力-wind-b-"><td class="">龍威後龍</td><td class="">44.1</td><td class="">14.8</td><td class="">33.560%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-wind-a-b-風力-wind-b-" data-group="-a-name-wind-a-b-風力-wind-b-"><td class="">苗栗通苑</td><td class="">39.1</td><td class="">22.3</td><td class="">57.033%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-wind-a-b-風力-wind-b-" data-group="-a-name-wind-a-b-風力-wind-b-"><td class="">安威</td><td class="">11.5</td><td class="">3.7</td><td class="">32.174%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-wind-a-b-風力-wind-b-" data-group="-a-name-wind-a-b-風力-wind-b-"><td class="">清風清水</td><td class="">2.3</td><td class="">1.3</td><td class="">56.522%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-wind-a-b-風力-wind-b-" data-group="-a-name-wind-a-b-風力-wind-b-"><td class="">東鋼龍港</td><td class="">11.5</td><td class="">3.5</td><td class="">30.435%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-wind-a-b-風力-wind-b-" data-group="-a-name-wind-a-b-風力-wind-b-"><td class="">海洋竹南</td><td class="">128.0</td><td class="">99.3</td><td class="">77.578%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-wind-a-b-風力-wind-b-" data-group="-a-name-wind-a-b-風力-wind-b-"><td class="">禾風麥寮</td><td class="">2.3</td><td class="">1.4</td><td class="">60.870%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-wind-a-b-風力-wind-b-" data-group="-a-name-wind-a-b-風力-wind-b-"><td class="">小計</td><td class="">840.2(1.715%)</td><td class="">522.5(1.904%)</td><td class=""></td><td class=""></td></tr><tr id="group-id-unitgentab_-a-name-solar-a-b-太陽能-solar-b-"><td class="group -a-name-solar-a-b-太陽能-solar-b- expanded-group group-item-expander" colspan="5" data-group="-a-name-solar-a-b-太陽能-solar-b-" data-group-level="0"><a name="solar"></a><b>太陽能(Solar)</b></td></tr><tr class="even group-item group-item--a-name-solar-a-b-太陽能-solar-b-" data-group="-a-name-solar-a-b-太陽能-solar-b-"><td class="">金門金沙</td><td class="">0.5</td><td class="">0.380</td><td class="">71.698%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-solar-a-b-太陽能-solar-b-" data-group="-a-name-solar-a-b-太陽能-solar-b-"><td class="">台中生水池</td><td class="">2.1</td><td class="">1.240</td><td class="">58.408%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-solar-a-b-太陽能-solar-b-" data-group="-a-name-solar-a-b-太陽能-solar-b-"><td class="">興達生水池</td><td class="">1.6</td><td class="">0.694</td><td class="">42.655%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-solar-a-b-太陽能-solar-b-" data-group="-a-name-solar-a-b-太陽能-solar-b-"><td class="">嘉義民雄</td><td class="">0.1</td><td class="">0.000</td><td class="">0.000%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-solar-a-b-太陽能-solar-b-" data-group="-a-name-solar-a-b-太陽能-solar-b-"><td class="">中部儲運</td><td class="">0.1</td><td class="">0.032</td><td class="">35.556%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-solar-a-b-太陽能-solar-b-" data-group="-a-name-solar-a-b-太陽能-solar-b-"><td class="">東勢新伯公</td><td class="">0.1</td><td class="">0.049</td><td class="">40.833%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-solar-a-b-太陽能-solar-b-" data-group="-a-name-solar-a-b-太陽能-solar-b-"><td class="">永安鹽灘地</td><td class="">4.6</td><td class="">2.370</td><td class="">51.078%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-solar-a-b-太陽能-solar-b-" data-group="-a-name-solar-a-b-太陽能-solar-b-"><td class="">路北</td><td class="">0.1</td><td class="">0.032</td><td class="">53.333%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-solar-a-b-太陽能-solar-b-" data-group="-a-name-solar-a-b-太陽能-solar-b-"><td class="">中原大學</td><td class="">0.0</td><td class="">0.026</td><td class="">65.000%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-solar-a-b-太陽能-solar-b-" data-group="-a-name-solar-a-b-太陽能-solar-b-"><td class="">大潭生水池</td><td class="">0.6</td><td class="">0.383</td><td class="">58.923%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-solar-a-b-太陽能-solar-b-" data-group="-a-name-solar-a-b-太陽能-solar-b-"><td class="">核三生水池</td><td class="">1.5</td><td class="">0.178</td><td class="">12.192%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-solar-a-b-太陽能-solar-b-" data-group="-a-name-solar-a-b-太陽能-solar-b-"><td class="">七美</td><td class="">0.4</td><td class="">0.069</td><td class="">19.492%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-solar-a-b-太陽能-solar-b-" data-group="-a-name-solar-a-b-太陽能-solar-b-"><td class="">尖山</td><td class="">0.1</td><td class="">0.039</td><td class="">55.714%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-solar-a-b-太陽能-solar-b-" data-group="-a-name-solar-a-b-太陽能-solar-b-"><td class="">卓蘭</td><td class="">0.0</td><td class="">0.025</td><td class="">62.500%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-solar-a-b-太陽能-solar-b-" data-group="-a-name-solar-a-b-太陽能-solar-b-"><td class="">后里</td><td class="">0.1</td><td class="">0.051</td><td class="">56.667%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-solar-a-b-太陽能-solar-b-" data-group="-a-name-solar-a-b-太陽能-solar-b-"><td class="">台中龍井</td><td class="">6.5</td><td class="">2.205</td><td class="">33.996%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-solar-a-b-太陽能-solar-b-" data-group="-a-name-solar-a-b-太陽能-solar-b-"><td class="">七股</td><td class="">1.8</td><td class="">1.351</td><td class="">75.056%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-solar-a-b-太陽能-solar-b-" data-group="-a-name-solar-a-b-太陽能-solar-b-"><td class="">龍潭E/S</td><td class="">0.2</td><td class="">0.100</td><td class="">61.728%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-solar-a-b-太陽能-solar-b-" data-group="-a-name-solar-a-b-太陽能-solar-b-"><td class="">竹工E/S</td><td class="">0.2</td><td class="">0.143</td><td class="">62.719%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-solar-a-b-太陽能-solar-b-" data-group="-a-name-solar-a-b-太陽能-solar-b-"><td class="">中科E/S</td><td class="">0.2</td><td class="">0.134</td><td class="">67.677%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-solar-a-b-太陽能-solar-b-" data-group="-a-name-solar-a-b-太陽能-solar-b-"><td class="">彰林E/S</td><td class="">0.3</td><td class="">0.178</td><td class="">68.992%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-solar-a-b-太陽能-solar-b-" data-group="-a-name-solar-a-b-太陽能-solar-b-"><td class="">高雄E/S</td><td class="">0.4</td><td class="">0.192</td><td class="">50.526%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-solar-a-b-太陽能-solar-b-" data-group="-a-name-solar-a-b-太陽能-solar-b-"><td class="">燕巢倉庫</td><td class="">0.5</td><td class="">0.187</td><td class="">37.550%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-solar-a-b-太陽能-solar-b-" data-group="-a-name-solar-a-b-太陽能-solar-b-"><td class="">大潭</td><td class="">0.7</td><td class="">0.466</td><td class="">65.634%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-solar-a-b-太陽能-solar-b-" data-group="-a-name-solar-a-b-太陽能-solar-b-"><td class="">北儲</td><td class="">0.9</td><td class="">0.540</td><td class="">59.471%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-solar-a-b-太陽能-solar-b-" data-group="-a-name-solar-a-b-太陽能-solar-b-"><td class="">彰濱光</td><td class="">100.0</td><td class="">67.480</td><td class="">67.481%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-solar-a-b-太陽能-solar-b-" data-group="-a-name-solar-a-b-太陽能-solar-b-"><td class="">南鹽光(註10)</td><td class="">-</td><td class="">102.970</td><td class="">68.647%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-solar-a-b-太陽能-solar-b-" data-group="-a-name-solar-a-b-太陽能-solar-b-"><td class="">崙尾光(註10)</td><td class="">-</td><td class="">92.120</td><td class="">50.895%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-solar-a-b-太陽能-solar-b-" data-group="-a-name-solar-a-b-太陽能-solar-b-"><td class="">太陽能購電(註7)</td><td class="">4746.2</td><td class="">2033.803</td><td class="">42.851%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-solar-a-b-太陽能-solar-b-" data-group="-a-name-solar-a-b-太陽能-solar-b-"><td class="">小計</td><td class="">4869.8(9.939%)</td><td class="">2307.4(8.409%)</td><td class=""></td><td class=""></td></tr><tr id="group-id-unitgentab_-a-name-pumpinggen-a-b-抽蓄發電-pumping-gen-b-"><td class="group -a-name-pumpinggen-a-b-抽蓄發電-pumping-gen-b- expanded-group group-item-expander" colspan="5" data-group="-a-name-pumpinggen-a-b-抽蓄發電-pumping-gen-b-" data-group-level="0"><a name="pumpinggen"></a><b>抽蓄發電(Pumping Gen)</b></td></tr><tr class="even group-item group-item--a-name-pumpinggen-a-b-抽蓄發電-pumping-gen-b-" data-group="-a-name-pumpinggen-a-b-抽蓄發電-pumping-gen-b-"><td class="">大觀二#1</td><td class="">250.0</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-pumpinggen-a-b-抽蓄發電-pumping-gen-b-" data-group="-a-name-pumpinggen-a-b-抽蓄發電-pumping-gen-b-"><td class="">大觀二#2</td><td class="">250.0</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-pumpinggen-a-b-抽蓄發電-pumping-gen-b-" data-group="-a-name-pumpinggen-a-b-抽蓄發電-pumping-gen-b-"><td class="">大觀二#3</td><td class="">250.0</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-pumpinggen-a-b-抽蓄發電-pumping-gen-b-" data-group="-a-name-pumpinggen-a-b-抽蓄發電-pumping-gen-b-"><td class="">大觀二#4</td><td class="">250.0</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-pumpinggen-a-b-抽蓄發電-pumping-gen-b-" data-group="-a-name-pumpinggen-a-b-抽蓄發電-pumping-gen-b-"><td class="">明潭#1</td><td class="">267.0</td><td class="">0.0</td><td class="">0.000%</td><td class="">檢修</td></tr><tr class="odd group-item group-item--a-name-pumpinggen-a-b-抽蓄發電-pumping-gen-b-" data-group="-a-name-pumpinggen-a-b-抽蓄發電-pumping-gen-b-"><td class="">明潭#2</td><td class="">267.0</td><td class="">0.0</td><td class="">0.000%</td><td class="">歲修</td></tr><tr class="even group-item group-item--a-name-pumpinggen-a-b-抽蓄發電-pumping-gen-b-" data-group="-a-name-pumpinggen-a-b-抽蓄發電-pumping-gen-b-"><td class="">明潭#3</td><td class="">267.0</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-pumpinggen-a-b-抽蓄發電-pumping-gen-b-" data-group="-a-name-pumpinggen-a-b-抽蓄發電-pumping-gen-b-"><td class="">明潭#4</td><td class="">267.0</td><td class="">194.8</td><td class="">72.959%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-pumpinggen-a-b-抽蓄發電-pumping-gen-b-" data-group="-a-name-pumpinggen-a-b-抽蓄發電-pumping-gen-b-"><td class="">明潭#5</td><td class="">267.0</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-pumpinggen-a-b-抽蓄發電-pumping-gen-b-" data-group="-a-name-pumpinggen-a-b-抽蓄發電-pumping-gen-b-"><td class="">明潭#6</td><td class="">267.0</td><td class="">0.0</td><td class="">0.000%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-pumpinggen-a-b-抽蓄發電-pumping-gen-b-" data-group="-a-name-pumpinggen-a-b-抽蓄發電-pumping-gen-b-"><td class="">小計</td><td class="">2602.0(5.311%)</td><td class="">194.8(0.710%)</td><td class=""></td><td class=""></td></tr><tr id="group-id-unitgentab_-a-name-pumpingload-a-b-抽蓄負載-pumping-load-b-"><td class="group -a-name-pumpingload-a-b-抽蓄負載-pumping-load-b- expanded-group group-item-expander" colspan="5" data-group="-a-name-pumpingload-a-b-抽蓄負載-pumping-load-b-" data-group-level="0"><a name="pumpingload"></a><b>抽蓄負載(Pumping Load)</b></td></tr><tr class="odd group-item group-item--a-name-pumpingload-a-b-抽蓄負載-pumping-load-b-" data-group="-a-name-pumpingload-a-b-抽蓄負載-pumping-load-b-"><td class="">大觀二#1</td><td class="">-</td><td class="">0.0</td><td class="">-</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-pumpingload-a-b-抽蓄負載-pumping-load-b-" data-group="-a-name-pumpingload-a-b-抽蓄負載-pumping-load-b-"><td class="">大觀二#2</td><td class="">-</td><td class="">0.0</td><td class="">-</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-pumpingload-a-b-抽蓄負載-pumping-load-b-" data-group="-a-name-pumpingload-a-b-抽蓄負載-pumping-load-b-"><td class="">大觀二#3</td><td class="">-</td><td class="">-236.3</td><td class="">-</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-pumpingload-a-b-抽蓄負載-pumping-load-b-" data-group="-a-name-pumpingload-a-b-抽蓄負載-pumping-load-b-"><td class="">大觀二#4</td><td class="">-</td><td class="">0.0</td><td class="">-</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-pumpingload-a-b-抽蓄負載-pumping-load-b-" data-group="-a-name-pumpingload-a-b-抽蓄負載-pumping-load-b-"><td class="">明潭#1</td><td class="">-</td><td class="">0.0</td><td class="">-</td><td class="">檢修</td></tr><tr class="even group-item group-item--a-name-pumpingload-a-b-抽蓄負載-pumping-load-b-" data-group="-a-name-pumpingload-a-b-抽蓄負載-pumping-load-b-"><td class="">明潭#2</td><td class="">-</td><td class="">0.0</td><td class="">-</td><td class="">歲修</td></tr><tr class="odd group-item group-item--a-name-pumpingload-a-b-抽蓄負載-pumping-load-b-" data-group="-a-name-pumpingload-a-b-抽蓄負載-pumping-load-b-"><td class="">明潭#3</td><td class="">-</td><td class="">0.0</td><td class="">-</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-pumpingload-a-b-抽蓄負載-pumping-load-b-" data-group="-a-name-pumpingload-a-b-抽蓄負載-pumping-load-b-"><td class="">明潭#4</td><td class="">-</td><td class="">0.0</td><td class="">-</td><td class=""> </td></tr><tr class="odd group-item group-item--a-name-pumpingload-a-b-抽蓄負載-pumping-load-b-" data-group="-a-name-pumpingload-a-b-抽蓄負載-pumping-load-b-"><td class="">明潭#5</td><td class="">-</td><td class="">0.0</td><td class="">-</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-pumpingload-a-b-抽蓄負載-pumping-load-b-" data-group="-a-name-pumpingload-a-b-抽蓄負載-pumping-load-b-"><td class="">明潭#6</td><td class="">-</td><td class="">0.0</td><td class="">-</td><td class=""> </td></tr><tr id="group-id-unitgentab_-a-name-geothermal-a-b-地熱-geothermal-b-"><td class="group -a-name-geothermal-a-b-地熱-geothermal-b- expanded-group group-item-expander" colspan="5" data-group="-a-name-geothermal-a-b-地熱-geothermal-b-" data-group-level="0"><a name="geothermal"></a><b>地熱(Geothermal)</b></td></tr><tr class="odd group-item group-item--a-name-geothermal-a-b-地熱-geothermal-b-" data-group="-a-name-geothermal-a-b-地熱-geothermal-b-"><td class="">小型地熱能</td><td class="">0.3</td><td class="">0.2</td><td class="">66.667%</td><td class=""> </td></tr><tr class="even group-item group-item--a-name-geothermal-a-b-地熱-geothermal-b-" data-group="-a-name-geothermal-a-b-地熱-geothermal-b-"><td class="">小計</td><td class="">0.3(0.001%)</td><td class="">0.2(0.001%)</td><td class=""></td><td class=""></td></tr></tbody></table><div class="fg-toolbar ui-toolbar ui-widget-header ui-corner-bl ui-corner-br ui-helper-clearfix"></div></div>
+<br>
+<br>
+<br>
+<table class="rm" width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tbody><tr>
+    <th width="5%" align="right" valign="top" nowrap="nowrap" scope="row">註1：</th>
+    <td width="95%">
+	<div class="remarks">
+	裝置容量：通常以構成該機組之原動機或發電機之設計容量(名牌所列發定額容量)稱之（取用二者中較小者），如以系統而論，則為該系統所有發電廠裝置容量之和。</div>
+	<br>
+	</td>
+  </tr>
+  <tr>
+    <th align="right" valign="top" nowrap="nowrap" scope="row">註2：</th>
+    <td>
+		<div class="remarks">
+		淨發電量：發電廠發電機所產生之電能，電力系統上屬於公司發電廠之輸出電能。(廠毛發電量 - 廠內用電)</div><br>
+	</td>
+  </tr>
+  <tr>
+    <th align="right" valign="top" nowrap="nowrap" scope="row">註3：</th>
+    <td>
+		淨發電量高於裝置容量之說明：<br>
+		<div class="remarksa">(1)因核能機組完成提升出力改善計畫，致實際發電能力超出原規劃裝置容量。 </div>
+		<div class="remarksa">(2)部分火力機組因機組配件升級、環境溫度較低、機組效能測試等因素之影響，致使淨發電量可能高於裝置容量，惟大多屬短暫性現象，亦不影響台電與民營電廠之全年合約購電量。</div>
+		<div class="remarksa">(3)本公司所購入汽電共生係為餘電收購，有淨發電量貢獻，其中垃圾及沼氣計入裝置容量，其餘不計入本公司系統裝置容量。</div>
+		<br>
+	</td>
+  </tr>
+  <tr>
+    <th align="right" valign="top" nowrap="nowrap" scope="row">註4：</th>
+		<td>澎湖尖山：僅含澎湖本島尖山電廠。	<br>
+		金門塔山：含大、小金門所有電廠。<br>
+		馬祖珠山：只含南竿、北竿及珠山等電廠。<br>
+		<div class="remarks">離島其他：含蘭嶼、綠島、小琉球、連江縣[馬祖]離島（東引、東莒、西莒）及澎湖縣離島(七美、望安、虎井，但不含吉貝、鳥嶼)等電廠。</div>
+		※顯示之發電量為毛發電量。
+		<br>
+		<br>
+	</td>
+  </tr>
+  <tr>
+    <th align="right" valign="top" nowrap="nowrap" scope="row">註5：</th>
+    <td>核能電廠全黑起動氣渦輪機，其淨尖峰能力23.3萬瓩，但其裝置容量不計入台電系統裝置容量，發電量計入燃油(輕油)發電。<br><br></td>
+  </tr>
+  <tr>
+    <th align="right" valign="top" nowrap="nowrap" scope="row">註6：</th>
+    <td>北部小水力: 圓山、天埤、軟橋。<br>
+      中部小水力: 后里、社寮、北山、濁水。 <br>
+      南部小水力: 六龜、竹門。 <br>
+    東部小水力: 銅門、龍溪、水簾、清水、清流、初英、榕樹、溪口、東興。<br><br></td>
+  </tr>
+  <!--<tr>
+    <th align="right" valign="top" nowrap="nowrap" scope="row">註7：</th>
+    <td>離島風力含澎湖中屯、金門金沙、澎湖湖西。<br /><br /></td>
+  </tr>
+  <tr>-->
+  <tr>
+    <th align="right" valign="top" nowrap="nowrap" scope="row">註7：</th>
+    <td>太陽能購電：所顯示之發電量係參考購電取樣發電量分區比例估算得出。購售電件數請參考本公司首頁：資訊揭露-&gt;發電資訊-&gt;購入電力概況-&gt;<a href="http://www.taipower.com.tw/tc/page.aspx?mid=207&amp;cid=164&amp;cchk=1878dc90-ab48-4069-b940-2014dd410bef" target="_blank">購入電力分布情形</a>。<br><br></td>
+  </tr>
+  <tr>
+    <th align="right" valign="top" nowrap="nowrap" scope="row">註8：</th>
+    <td>淨發電量若標示為N/A，表示無即時資訊。<br><br></td>
+  </tr>
+  <tr>
+    <th align="right" valign="top" nowrap="nowrap" scope="row">註9：</th>
+    <td>本網頁資料為每10分鐘更新，請重新整理頁面，可顯示最新資訊。<br><br></td>
+  </tr>
+  <tr>
+    <th align="right" valign="top" nowrap="nowrap" scope="row">註10：</th>
+    <td>電廠(機組)換發/取得電業執照前進行測試(試運轉)等程序中，不計入裝置容量。<br><br></td>
+  </tr>
+  <tr>
+    <th align="right" valign="top" nowrap="nowrap" scope="row">註11：</th>
+    <td>
+		備註欄補充說明：<br>
+		<div class="remarksa">(1)水文限制：配合水資源局下游用水需求限制，或排洪排砂。	</div>
+		<div class="remarksa">(2)燃料限制：發電廠年度天然氣燃料用量限制，或儲量限制。</div>
+		<div class="remarksa">(3)環保限制：配合環保單位年度排放限制。</div>
+		<div class="remarksa">(4)空污減載：因應 PM2.5 環境友善降載。</div>
+		<div class="remarksa">(5)環保停機：本公司因應季節性區域空氣品質不良，在評估停機後，系統仍可維持供電安全，安排環保停機。</div>
+		<div class="remarksa">(6)運轉限制：發電機組輔機相關設備等故障限制。</div>
+		<div class="remarksa">(7)EOH限制：發電機組有效運轉時數(EOH)限制。</div>
+		<div class="remarksa">(8)部分歲修：複循環發電機組部分歲修。</div>
+		<div class="remarksa">(9)部分檢修：複循環發電機組部分檢修。</div>
+		<div class="remarksa">(10)部分故障：複循環發電機組部分故障。</div>
+		<div class="remarksa">(11)合約限制：與民營電廠合約(PPA)限制。</div>
+		<div class="remarksa">(12)電源線限制：發電廠電源線安全限制。</div>
+		<div class="remarksa">(13)機組安檢：機組依原製造廠家規定，於其運轉累計達一定時數時，須實施必要之安檢。</div>
+		<div class="remarksa">(14)輔機檢修：相關輔機設備功能異常必須停用檢修，以致發電出力受限。</div>
+		<div class="remarksa">(15)外溫高限制：因氣溫高機組出力受限。</div>
+		<div class="remarksa">(16)歲修逾排程：機組歲修因設備或其他因素，超過原排程工期。</div>
+		<div class="remarksa">(17)測試停機：機組歲、檢修後因必要測試停機或試俥機組停機。</div>
+		<div class="remarksa">(18)測試運轉：機組歲、檢修後運轉測試，或依規定之定期降載測試。</div>
+		<br>
+	</td>
+  </tr>
+   <tr>
+    <th align="right" valign="top" nowrap="nowrap" scope="row">註12：</th>
+    <td>依高雄市環保局108.09.20核發之操作許可證，興達電廠2部燃煤機組於秋冬空品不良季節（10月至翌年3月）停機，另2部機組平均生煤用量削減至65%；如因用電需求指令機組升載超過65%時，將另於適當時機調度降載，以維持2部機平均負載65%為原則，並定期追蹤管控，以符合生煤減量之環保責任。<br><br></td>
+  </tr>
+</tbody></table>
+</div>
+</div>
+</div> <!--end of container-->
+<div align="right"><a href="#"><img src="./images/go-top.png" border="0" style="margin:0px 0 0 116px;"></a></div> <br>
+
+<div class="ui-widget">
+	<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
+		<p>	<b>
+		以上資料係由調度即時系統取得，相關資料可能因系統維護、資料之設定、傳輸等因素，會與實際數值有些許誤差，相關實際資料請以台電正式公布為準。
+		</b></p>
+  </div>
+</div>
+<script async="" src="//www.google-analytics.com/analytics.js"></script><script>
+setInterval(reTick, 300000);
+function reTick() {
+	location.reload(true);
+}
+    (function(i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function() {
+            (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date(); a = s.createElement(o),
+m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+    ga('create', 'UA-38594873-1', 'auto');
+    ga('require', 'displayfeatures');
+    ga('send', 'pageview');
+//window.parent.iframe_resize();
+</script>
+
+	<script src="js/jquery-1.12.4.min.js"></script>
+	<script src="js/jquery-ui.1.12.1.min.js"></script>
+	<script type="text/javascript" language="javascript" src="js/jquery.dataTables.js"></script>
+   	<script type="text/javascript" language="javascript" src="js/jquery.dataTables.rowGrouping.js"></script>
+    <script type="text/javascript" language="javascript" src="js/FixedHeader.js"></script>
+    <script type="text/javascript" language="javascript" src="js/jquery.msgBox.js"></script>
+    <!--<script src="js/bootstrap.min.js"></script>-->
+    <script src="bslib/3/bootstrap.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+	        $(document).ready(function() {
+
+			var ssumAry = [];
+			var ssumPercentAry = [];
+			var cnt = 0;
+			var regExp = /\(([^)]+)\)/;
+			var perStr = null;
+			var sysSpSum = 0.0;
+			var pumpSum = 0.0;
+
+			$.getJSON("data/genary.txt", function(gadata){
+
+			$.each(gadata.aaData, function(i,v){
+					if( v[1].indexOf("小計") != -1 ){
+						//ssumAry.push(v[3].split("(")[0]+" MW");
+						ssumAry.push(v[3].split("(")[0]+" ");
+						perStr = regExp.exec(v[3]);
+						ssumPercentAry.push(perStr[1]);
+						cnt++;
+						return;
+					}
+					if( v[0].indexOf("Pumping Load") != -1 ){
+						pumpSum = pumpSum + Number(v[3]);					
+					}
+			});
+
+			for ( var xop = 0; xop < ssumAry.length ; xop++) {
+				$("#item"+xop).text(ssumAry[xop]);
+				sysSpSum=sysSpSum + Number(ssumAry[xop]);
+			}
+
+			for ( var iop = 0; iop < ssumPercentAry.length ; iop++) {
+				$(".bar-lb-"+iop).append("<span style='color: #4d4d4d; margin: auto 0 auto 1em; '\>" +ssumPercentAry[iop]+"</span>");
+			}
+			
+			sysSpSum = sysSpSum + pumpSum;
+			$("#nestSumId").text(Math.floor(sysSpSum));
+
+
+			$(".bar-0").css({"width": ssumPercentAry[0], "background-color" : "#CC0099"}); $(".bar-1").css({"width": ssumPercentAry[1], "background-color" : "#E65C00"});
+			$(".bar-2").css({"width": ssumPercentAry[2], "background-color" : "#E6E600"}); $(".bar-3").css({"width": ssumPercentAry[3], "background-color" : "#FFA347"});
+			$(".bar-4").css({"width": ssumPercentAry[4], "background-color" : "#006600"}); $(".bar-5").css({"width": ssumPercentAry[5], "background-color" : "#5EDFDF"});
+			$(".bar-6").css({"width": ssumPercentAry[6], "background-color" : "#FF1919"}); $(".bar-7").css({"width": ssumPercentAry[7], "background-color" : "#848484"});
+			$(".bar-8").css({"width": ssumPercentAry[8], "background-color" : "#0000B2"}); $(".bar-9").css({"width": ssumPercentAry[9], "background-color" : "#009933"});
+			$(".bar-10").css({"width": ssumPercentAry[10], "background-color" : "#00CC00"}); $(".bar-11").css({"width": ssumPercentAry[11], "background-color" : "#3366CC"});
+			});
+
+
+			// $('#unitgentab').disableSelection();//禁止選取
+			$(document).bind("contextmenu",function(event){return false;});//禁止右鍵
+			
+			$.fn.DataTable.ext.sErrMode = "throw";
+
+				var oTable = $('#unitgentab').dataTable( {
+					"aoColumns": [
+                     { "sWidth": "10%" },
+                     { "sWidth": "20%" },
+                     { "sWidth": "20%" },
+                     { "sWidth": "20%" },
+					 { "sWidth": "15%" },
+     				 { "sWidth": "15%" }
+                     ],
+
+					"bProcessing": true,
+					"bJQueryUI": true,
+			    	"bLengthChange": false,
+					"bPaginate": false,
+					"bSort": false,
+					"bAutoWidth": false,
+					"bInfo": false,
+					"oLanguage": {
+			        "sLengthMenu": "每頁顯示 _MENU_ 筆記錄",
+                    "sZeroRecords": "查無相關資料!",
+                    "sInfo": "目前顯示 _START_ 到 _END_ 筆，共 _TOTAL_ 筆紀錄",
+                    "sInfoEmtpy": "查無資料",
+                    "sInfoFiltered": "表格中共有 _MAX_ 條紀錄",
+                    "sProcessing": "數據載入中...",
+                    "sSearch": "搜尋"},
+					"fnInitComplete": function() {$(".dataTables_scrollBody").css("overflow-x", "scroll");
+ 					 var anchor_id = window.location.hash;
+			         if (anchor_id != ""){
+                      //window.location.hash=anchor_id;
+	$.msgBox({title:"", content:'頁面導向完成!!',autoClose:true,timeOut:500,afterClose:window.location.hash=anchor_id,type:"alert"});
+	                  }
+					  },
+					"sAjaxSource": "data/genary.txt"
+				     }).rowGrouping({bExpandableGrouping: true
+    			                 //asExpandedGroups: ["<A NAME='nuclear'></A><b>核能(Nuclear)</b>",
+								 //                   "<A NAME='coal'></A><b>燃煤 (Coal)</b>"]
+				     });
+
+			         });
+		</script>
+				<script>
+        $.get("data/genary.txt", function(data) {
+        line = data;
+        array = line.split(',');
+        getmsg2=array[0].replace(/\"/g,'');
+        getmsg=getmsg2.replace("{:",'');
+    	$("#datetime").text(getmsg);
+        })
+        </script>
+
+</body></html>
